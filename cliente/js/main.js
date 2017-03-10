@@ -1,0 +1,369 @@
+var APP = (function(){
+
+	var urlSlide   = "slide.json";
+	var urlNoticia = "noticias.json"; 
+
+	// Globais Slide
+
+    var $slideContainer =  $(".slide"); 
+    var slideIndex = 0;
+    var $itemSlide = $slideContainer.find(".slide__item");
+	var $paginacao = $(".slide__pagination ol");
+	var $next = $(".slide__control--next");
+	var $prev = $(".slide__control--prev");
+
+
+	// Globais Editorial
+
+    var $data  = []; // retorno request 
+    var $dados = [];
+	var $noticiaContainer = $(".noticia__content");
+	var $itemNoticia 	  = $noticiaContainer.find(".noticia__item");
+	var $filtroEditoria   = $("select[name=filtrar]"); 
+	var $ordenarData      = $("select[name=ordenar]");   
+
+//--------------------------
+
+	// Método Útil
+	var getDados = function( url , callback ){
+
+	    $.ajax({
+	      url: url,
+	      dataType: 'json'
+      	})
+      	.success( function( data ){ 
+      	  callback.sucesso( data );
+      	})
+      	.fail( function( xhr, err){ 
+          callback.erro( xhr, err );
+        });
+    };
+
+
+	var normalizaData = function( e ){
+	  	var d = e.split("-");
+	  	return new Date(d[2]+"/"+d[1]+"/"+d[0]);
+	}
+
+
+    var preencherElementos = function( data ){
+        $dados = data[0]['Editorias'];
+  		var _editoria = data[0].Editorias;
+  		var _template = "";
+
+  		// Preence a combo editoria
+    	$.each( _editoria, function( i, item ){
+
+    		$filtroEditoria.append("<option value="+item['Id']+">"+ item['Editoria'] +"</option>");
+
+    		$.each( item['Notícias'], function( index, elemento ){
+
+				_template += "<div class='noticia__item "+ item['Editoria'] +" '>";
+				_template +=  "<div class='f-left noticia__item--imagem'>";
+				_template += 	"<img src=/img/noticias/"+elemento['Foto']+">";
+				_template +=  "</div>";
+				_template +=  "<div class='f-left noticia__item--conteudo'>";
+				_template += 	"<h2 class='font-2'>"+elemento['Título']+"</h2>";
+				_template += 	"<p>"+elemento['Texto']+"</p>";
+				_template +=  "</div>";
+				_template +=  "<div class='f-left noticia__item--seta'>&#10095;</div>";
+				_template += "</div>";
+    		});
+
+    		$noticiaContainer.html( _template );
+    	});
+    }
+
+
+    var filtroEditoria = function( data , valor ){
+  
+    	data.forEach(function( item ){
+ 			if( item.Id === valor ){
+			  preencheFiltroEditoria( item.Notícias );
+ 			}
+    	});
+    	
+    }
+
+
+    var preencheFiltroEditoria = function( el ){
+    	var _htmlElemente = "";
+
+		$.each( el, function( i, item ){
+			_htmlElemente += "<div class='noticia__item'>";
+			_htmlElemente +=  "<div class='f-left noticia__item--imagem'>";
+			_htmlElemente += 	"<img src=/img/noticias/"+item['Foto']+">";
+			_htmlElemente +=  "</div>";
+			_htmlElemente +=  "<div class='f-left noticia__item--conteudo'>";
+			_htmlElemente += 	"<h2 class='font-2'>"+item['Título']+"</h2>";
+			_htmlElemente += 	"<p>"+item['Texto']+"</p>";
+			_htmlElemente +=  "</div>";
+			_htmlElemente +=  "<div class='f-left noticia__item--seta'>&#10095;</div>";
+			_htmlElemente += "</div>";
+		});
+
+		$noticiaContainer.html( _htmlElemente );
+    } 
+
+    // Da mais Antiga para mais Recente
+    var ordenaDataAsc = function ( a, b ) {
+    	var obj = 'Data de publicação';
+	    return normalizaData(a[obj]) - normalizaData(b[obj]);
+	} 
+	
+	// Da mais Recente para a mais Antiga
+	var ordenaDataDesc= function ( a, b ) {
+    	var obj = 'Data de publicação';
+	    return normalizaData(b[obj]) - normalizaData(a[obj]);
+	} 
+	
+
+    var preencherOrdenado = function( data , valor , editoriaId ){
+     
+     // Pego todos os objetos notícia  
+    	var noticias = [];
+    	var noticiasOrdernadas = [];
+
+    	data.forEach(function( item ){
+    		if ( editoriaId !=="" && editoriaId !== undefined ) {
+    			if( item.Id === editoriaId ){
+		    		item.Notícias.forEach(function( el ){
+		    			noticias.push(el);
+		    		})
+	    	    }
+    		}else{
+	    		item.Notícias.forEach(function( el ){
+	    			noticias.push(el);
+	    		})
+    		}
+    	});
+
+    	if( valor === "recentes" ) {
+    		noticiasOrdernadas = noticias.sort( ordenaDataDesc );
+    		preencheFiltroEditoria( noticiasOrdernadas ); 
+    	}else{
+    		noticiasOrdernadas = noticias.sort( ordenaDataAsc );
+    		preencheFiltroEditoria( noticiasOrdernadas )
+    	}
+
+	}
+
+
+
+    // Carrega as imagens e a paginacao 
+    var carregarSlide = function( el, arr ){
+    	el.each(function(i, item){
+
+    		$(this).append( $("<img src='img/slide/"+arr[i]+"'  />") );
+    		$(this).attr( "data-index", i );
+    		$paginacao.append("<li data-index='"+i+"' "+(i === 0 ? "class='active'" : "")+" ></li>");
+    	});
+
+    };
+
+
+	var _Slider = function( dir ){ 
+
+	   	var _liItem = $paginacao.find("li");
+	   	var _slideAtual = $(".slide__item").siblings(".active"); 
+
+	   	// next
+	   	( dir == "next" ? _next( _slideAtual, _liItem ) : "");
+
+		//prev
+		( dir == "prev" ? _prev( _slideAtual, _liItem ) : "");
+
+		_Marcador( _liItem )
+	}
+
+	var _next = function( slide, item ){
+
+	   	if( slide.next().length ){
+	    	slide.removeClass("active").next().addClass("active");
+	    	slideIndex = slide.next().attr("data-index");
+	    	item.removeClass("active");
+	    	item.eq( slideIndex ).addClass("active");
+		}else{			
+			slide.removeClass("active");
+			slideIndex = 0;
+			$itemSlide.eq( slideIndex ).addClass("active"); // 0
+			item.removeClass("active");
+			item.eq( slideIndex ).addClass("active");
+		} 
+	} 
+
+	var _prev = function( slide, item ){
+	   	if( slide.index() > 0 ){
+	    	slide.removeClass("active").prev().addClass("active");
+	    	slideIndex = slide.prev().attr("data-index");
+	    	item.removeClass("active");
+	    	item.eq( slideIndex ).addClass("active");
+		}else{			
+			slide.removeClass("active");
+			slideIndex = $itemSlide.last().attr("data-index");
+			$itemSlide.eq( slideIndex  ).addClass("active"); // 0
+			item.removeClass("active");
+			item.eq( slideIndex ).addClass("active");
+		}
+
+	} 
+
+
+	var _Marcador = function( event ){
+
+		event.on("click", function(){
+			if(!$(this).hasClass("active")){
+				var index = $(this).attr("data-index");
+				$itemSlide.removeClass("active");
+				event.removeClass("active");
+				$itemSlide.eq( index  ).addClass("active"); // 0
+				event.eq( index  ).addClass("active"); // 0
+			};
+		});
+	}
+
+
+	// Mapa
+	var initMap = function () {
+	  	var myLatLng = {lat: 51.521249, lng:  -0.157347};
+	    var elemento = document.querySelector(".localizacao");
+	    var map = new google.maps.Map(elemento, {
+	      center: myLatLng,
+	      zoom: 15
+	    });
+
+
+	  var image = 'img/marcador.png';
+	  var beachMarker = new google.maps.Marker({
+	    position: myLatLng,
+	    map: map,
+	    icon: image
+	  });
+	}
+
+
+
+	// Eventos 
+    
+	$next.on("click", function(){;
+		var direcao = $(this).attr("data-direcao");
+		_Slider( direcao );
+	});
+
+	$prev.on("click", function(){
+		var direcao = $(this).attr("data-direcao");
+		_Slider( direcao );
+	});
+
+	// start slide
+	var rotate = setInterval( 
+		function(){
+			$next.click()}
+	, 3000);
+
+	// pause slide and start
+	$slideContainer.hover(function(){
+		clearInterval( rotate );
+	},
+	function(){
+		rotate = setInterval(function(){
+			$next.click()
+		},3000);
+	});
+
+
+	// Filtro Editoria 
+    $filtroEditoria.on("change", function(){
+    	var that = $(this);
+    	var valor = that.val();
+
+    	if ( valor !== "" && valor !== undefined && valor !== null ){
+	    	$noticiaContainer.html("");
+	    	filtroEditoria( $dados , valor );
+    	}else{
+    		preencherElementos( $data ); // Mostra todos novamente 
+    	}
+    });
+
+
+    // Ordernar data
+    $ordenarData.on("change", function(){
+    	var valor = $(this).val();
+    	var valorEditoria  = $filtroEditoria.val();
+    	$noticiaContainer.html("");
+    	preencherOrdenado( $dados, valor, valorEditoria  )
+    });
+
+
+
+
+	return{
+		init : function(){
+			getDados( urlSlide, {
+				sucesso:function( data ){
+					carregarSlide( $itemSlide, data[0].imagens );
+				},
+				erro : function( xhr, err ){
+					//console.log( xhr );
+					//console.log( err );
+				}
+			}),
+
+			getDados( urlNoticia, {
+				sucesso : function( data ){
+					preencherElementos( data );
+					$data = data;
+				},
+				erro : function( xhr, err ){
+					// console.log( xhr );
+					// console.log( err );
+				}
+			}),
+
+			initMap();
+		}
+	}
+}());
+
+
+APP.init();
+
+
+
+
+
+//  Gráfico
+
+var dados = [
+	{ editoria : "Governo" , quantidade : 200 },
+	{ editoria : "Carnaval" , quantidade : 140 },
+	{ editoria : "Esporte" , quantidade : 120 },
+	{ editoria : "Férias" , quantidade : 100 },
+	{ editoria : "Outros" , quantidade : 70 },
+];
+
+var width = 250,
+    barHeight = 30;
+
+
+var grafico = d3.select(".grafico__item")
+    .attr("width", width)
+    .attr("height", "250")
+	.style("transform",  "rotate(-90deg)");
+   
+var bar = grafico.selectAll("g")
+
+    .data(dados)
+    .enter().append("g")
+  	.attr("transform", function(d, i) { return "translate(0," + i * (barHeight*2 - 5) + ")"; });
+
+  	bar.append("rect")
+    .attr("height", barHeight - 1)
+    .style("width", function(d) { return d.quantidade * 1 + "px"; });
+
+    bar.append("text")
+    .attr("class","text")
+    .attr("x", "10 px")
+    .attr("y", "15")
+    .attr("dy", ".35em")
+    .text(function(d) { return d.editoria; });
