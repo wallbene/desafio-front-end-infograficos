@@ -58,6 +58,23 @@ var APP = (function(){
 
     		$.each( item['Notícias'], function( index, elemento ){
 
+							_template+=	'<div class="noticia__item">';
+							_template+= '<div class="noticia__item--header">';
+							_template+= '<span class="item__header--data">'+ elemento['Data'] +'</span>';
+							_template+= '<span class="item__header--editoria">'+ item['Editoria'] +'</span>';
+							_template+= '</div>';
+							_template+= '<div class"noticia__item-img">';
+							_template+=	'<img src="img/noticias/'+elemento['Foto']+'">';
+							_template+= '</div>';
+							_template+= '<h2 class="noticia__item--titulo">' +elemento['Titulo']+ '</h2>';
+							_template+= '<div class="noticia__item--conteudo">';
+							_template+= '<p>'+elemento['Texto']+'</p>';
+							_template+= '<div class="">';
+							_template+=	'<a href="#">Saiba Mais</a>';
+							_template+= '</div>';
+							_template+= '</div><!-- /.noticia__item--conteudo-->';
+							_template+= '</div><!-- /.noticia__item -->'
+
 				_template += "<div class='noticia__item "+ item['Editoria'] +" '>";
 				_template +=  "<div class='f-left noticia__item--imagem'>";
 				_template += 	"<img src=/img/noticias/"+elemento['Foto']+">";
