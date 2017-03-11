@@ -154,10 +154,10 @@ main[role="main"] .slide {
       user-select: none; }
     main[role="main"] .slide .slide__control .slide__control--prev {
       left: 50px;
-      /*background: green;*/ }
+      background: red; }
     main[role="main"] .slide .slide__control .slide__control--next {
       right: 50px;
-      /*background: red;*/ }
+      background: red; }
   main[role="main"] .slide .slide__pagination {
     position: absolute;
     bottom: 10px;
@@ -168,13 +168,13 @@ main[role="main"] .slide {
       margin-right: auto; }
       main[role="main"] .slide .slide__pagination ol li {
         background: #fff;
-        border-radius: 50%;
         float: left;
         margin: 5px;
         padding: 5px;
-        cursor: pointer; }
+        cursor: pointer;
+        border: 2px solid #000; }
       main[role="main"] .slide .slide__pagination ol .active {
-        background: #da3732; }
+        border: 2px solid #da3732; }
 
 main[role="main"] .main {
   padding-bottom: 6em; }

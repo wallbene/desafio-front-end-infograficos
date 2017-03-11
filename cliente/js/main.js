@@ -5,7 +5,7 @@ var APP = (function(){
 
 	// Globais Slide
 
-    var $slideContainer =  $(".slide"); 
+    var $slideContainer =  $(".slide");
     var slideIndex = 0;
     var $itemSlide = $slideContainer.find(".slide__item");
 	var $paginacao = $(".slide__pagination ol");
