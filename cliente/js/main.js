@@ -75,17 +75,6 @@ var APP = (function(){
 							_template+= '</div><!-- /.noticia__item--conteudo-->';
 							_template+= '</div><!-- /.noticia__item -->'
 
-				_template += "<div class='noticia__item "+ item['Editoria'] +" '>";
-				_template +=  "<div class='f-left noticia__item--imagem'>";
-				_template += 	"<img src=/img/noticias/"+elemento['Foto']+">";
-				_template +=  "</div>";
-				_template +=  "<div class='f-left noticia__item--conteudo'>";
-				_template += 	"<h2 class='font-2'>"+elemento['Título']+"</h2>";
-				_template += 	"<p>"+elemento['Texto']+"</p>";
-				_template +=  "</div>";
-				_template +=  "<div class='f-left noticia__item--seta'>&#10095;</div>";
-				_template += "</div>";
-    		});
 
     		$noticiaContainer.html( _template );
     	});
