@@ -75,6 +75,7 @@ var APP = (function(){
 							_template+= '</div><!-- /.noticia__item--conteudo-->';
 							_template+= '</div><!-- /.noticia__item -->'
 
+    		});
 
     		$noticiaContainer.html( _template );
     	});
@@ -96,16 +97,22 @@ var APP = (function(){
     	var _htmlElemente = "";
 
 		$.each( el, function( i, item ){
-			_htmlElemente += "<div class='noticia__item'>";
-			_htmlElemente +=  "<div class='f-left noticia__item--imagem'>";
-			_htmlElemente += 	"<img src=/img/noticias/"+item['Foto']+">";
-			_htmlElemente +=  "</div>";
-			_htmlElemente +=  "<div class='f-left noticia__item--conteudo'>";
-			_htmlElemente += 	"<h2 class='font-2'>"+item['Título']+"</h2>";
-			_htmlElemente += 	"<p>"+item['Texto']+"</p>";
-			_htmlElemente +=  "</div>";
-			_htmlElemente +=  "<div class='f-left noticia__item--seta'>&#10095;</div>";
-			_htmlElemente += "</div>";
+			_template+=	'<div class="noticia__item">';
+							_template+= '<div class="noticia__item--header">';
+							_template+= '<span class="item__header--data">'+ el['Data'] +'</span>';
+							_template+= '<span class="item__header--editoria">'+ item['Editoria'] +'</span>';
+							_template+= '</div>';
+							_template+= '<div class"noticia__item-img">';
+							_template+=	'<img src="img/noticias/'+el['Foto']+'">';
+							_template+= '</div>';
+							_template+= '<h2 class="noticia__item--titulo">' +el['Titulo']+ '</h2>';
+							_template+= '<div class="noticia__item--conteudo">';
+							_template+= '<p>'+el['Texto']+'</p>';
+							_template+= '<div class="">';
+							_template+=	'<a href="#">Saiba Mais</a>';
+							_template+= '</div>';
+							_template+= '</div><!-- /.noticia__item--conteudo-->';
+							_template+= '</div><!-- /.noticia__item -->'
 		});
 
 		$noticiaContainer.html( _htmlElemente );
